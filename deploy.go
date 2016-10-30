@@ -176,6 +176,8 @@ func CreateClientToken(c *Core) (string, error) {
 	const createClientToken = `
 	docker exec dochaincore /usr/bin/chain/corectl create-token dochaincore
 	`
+	// TODO(jackson): remove the ssh key from authorized_keys before
+	// closing the SSH session.
 
 	session, err := connect(c.IPv4Address, c.ssh)
 	if err != nil {
