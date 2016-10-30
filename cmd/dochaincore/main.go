@@ -3,13 +3,39 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/jbowens/dochaincore"
 )
 
+var (
+	flagServer = flag.Bool("server", false, "set to run OAuth2 server")
+	flagPort   = flag.Int("port", 8080, "listen port for OAuth2 server")
+)
+
 func main() {
+	flag.Parse()
+
+	if !*flagServer {
+		createDroplet()
+		return
+	}
+
+	handler := dochaincore.Handler(
+		os.Getenv("DIGITALOCEAN_CLIENT_ID"),
+		os.Getenv("DIGITALOCEAN_CLIENT_SECRET"),
+		os.Getenv("SERVER_HOST"),
+	)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", *flagPort), handler)
+	if err != nil {
+		fatal(err)
+	}
+}
+
+func createDroplet() {
 	core, err := dochaincore.Deploy(os.Getenv("DIGITALOCEAN_ACCESS_TOKEN"))
 	if err != nil {
 		fatal(err)
