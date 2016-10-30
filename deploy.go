@@ -1,7 +1,11 @@
 package dochaincore
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
+	"io"
+	"strings"
 	"time"
 
 	"github.com/digitalocean/godo"
@@ -12,6 +16,8 @@ type Core struct {
 	DropletID   int
 	IPv4Address string
 	IPv6Address string
+
+	ssh *sshKeyPair
 }
 
 type Option func(*options)
@@ -123,6 +129,7 @@ func Deploy(accessToken string, opts ...Option) (*Core, error) {
 
 	core := &Core{
 		DropletID: droplet.ID,
+		ssh:       keypair,
 	}
 
 	// A just-created droplet won't have any of the network IP addresses
@@ -151,4 +158,54 @@ func Deploy(accessToken string, opts ...Option) (*Core, error) {
 		}
 	}
 	return core, nil
+}
+
+// WaitForSSH waits until port 22 on the provided Chain Core's host is opened.
+func WaitForSSH(c *Core) error {
+	return waitForPort(c.IPv4Address, 22)
+}
+
+// WaitForHTTP waits until Chain Core begins listening on port 1999.
+func WaitForHTTP(c *Core) error {
+	return waitForPort(c.IPv4Address, 1999)
+}
+
+// CreateClientToken sets up a Chain Core client token for the
+// provided Core.
+func CreateClientToken(c *Core) (string, error) {
+	const createClientToken = `
+	docker exec dochaincore /usr/bin/chain/corectl create-token dochaincore
+	`
+
+	session, err := connect(c.IPv4Address, c.ssh)
+	if err != nil {
+		return "", err
+	}
+
+	rOut, err := session.StdoutPipe()
+	if err != nil {
+		return "", err
+	}
+	rErr, err := session.StderrPipe()
+	if err != nil {
+		return "", err
+	}
+	combined := io.MultiReader(rOut, rErr)
+
+	err = session.Start(createClientToken)
+
+	var lines []string
+	scanner := bufio.NewScanner(combined)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	session.Close()
+
+	output := strings.Join(lines, "\n")
+	output = strings.TrimSpace(output)
+
+	if !strings.HasPrefix(output, "dochaincore") {
+		return "", errors.New(output)
+	}
+	return output, nil
 }
