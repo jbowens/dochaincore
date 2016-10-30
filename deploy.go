@@ -61,6 +61,11 @@ func Deploy(accessToken string, opts ...Option) (*Core, error) {
 		o(&opt)
 	}
 
+	keypair, err := createSSHKeyPair()
+	if err != nil {
+		return nil, err
+	}
+
 	oauthClient := oauth2.NewClient(oauth2.NoContext, oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: accessToken},
 	))
@@ -87,7 +92,7 @@ func Deploy(accessToken string, opts ...Option) (*Core, error) {
 
 	// Build user data to initialize the droplet as a Chain Core
 	// instance.
-	userData, err := buildUserData(&opt)
+	userData, err := buildUserData(&opt, keypair)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +146,7 @@ func Deploy(accessToken string, opts ...Option) (*Core, error) {
 				core.IPv6Address = nv6.IPAddress
 			}
 		}
-		if attempt > 10 {
+		if attempt >= 10 {
 			return nil, fmt.Errorf("timeout waiting for provisioning of droplet %d", core.DropletID)
 		}
 	}

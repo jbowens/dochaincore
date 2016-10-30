@@ -8,6 +8,8 @@ import (
 const baseUserData = `
 #cloud-config
 package_upgrade: true
+ssh_authorized_keys:
+  - {{.SSHAuthorizedKey}}
 users:
   - name: chaincore
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
@@ -25,15 +27,19 @@ runcmd:
   - docker run -p 1999:1999 -v /mnt/chain-core-storage/postgresql/data:/var/lib/postgresql/data chaincore/developer
 `
 
-type userDataParams struct{}
+type userDataParams struct {
+	SSHAuthorizedKey string
+}
 
-func buildUserData(opt *options) (string, error) {
+func buildUserData(opt *options, keypair *sshKeyPair) (string, error) {
 	t, err := template.New("userdata").Parse(baseUserData)
 	if err != nil {
 		return "", err
 	}
 
-	params := userDataParams{}
+	params := userDataParams{
+		SSHAuthorizedKey: string(keypair.authorizedKey),
+	}
 
 	var buf bytes.Buffer
 	err = t.Execute(&buf, params)
