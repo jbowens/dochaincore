@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	core, err := dochaincore.Deploy(os.Getenv("DIGITAL_OCEAN_PAT"))
+	core, err := dochaincore.Deploy(os.Getenv("DIGITALOCEAN_ACCESS_TOKEN"))
 	if err != nil {
 		fatal(err)
 	}

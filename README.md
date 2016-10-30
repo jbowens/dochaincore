@@ -9,7 +9,7 @@ dochaincore exposes a simple command-line utility for deploying Chain Core.
 
 ```bash
 go install github.com/jbowens/dochaincore/cmd/...
-DIGITAL_OCEAN_PAT=... dochaincore
+DIGITALOCEAN_ACCESS_TOKEN=... dochaincore
 ```
 
 Prints output like:
