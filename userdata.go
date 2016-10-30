@@ -1,5 +1,10 @@
 package dochaincore
 
+import (
+	"bytes"
+	"text/template"
+)
+
 const baseUserData = `
 #cloud-config
 package_upgrade: true
@@ -20,6 +25,20 @@ runcmd:
   - docker run -p 1999:1999 -v /mnt/chain-core-storage/postgresql/data:/var/lib/postgresql/data chaincore/developer
 `
 
+type userDataParams struct{}
+
 func buildUserData(opt *options) (string, error) {
-	return baseUserData, nil
+	t, err := template.New("userdata").Parse(baseUserData)
+	if err != nil {
+		return "", err
+	}
+
+	params := userDataParams{}
+
+	var buf bytes.Buffer
+	err = t.Execute(&buf, params)
+	if err != nil {
+		return "", err
+	}
+	return string(buf.Bytes()), nil
 }
