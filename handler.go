@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"net/url"
 	"os"
@@ -14,16 +15,80 @@ import (
 	"sync"
 )
 
+const progressPageHtml = `
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>One-Click Chain Core DigitalOcean</title>
+		<link rel="stylesheet" href="https://chain.com/docs/css/style.css">
+		<link rel="stylesheet" href="https://chain.com/docs/css/prettyify.css">
+		<script src="https://chain.com/docs/js/jquery.min.js"></script>
+		<style type="text/css">
+
+		@font-face {
+		  font-family: 'Nitti-Normal';
+		  src: url('https://chain.com/docs/fonts/Nitti-Normal.eot?#iefix') format('embedded-opentype'),  url('https://chain.com/docs/fonts/Nitti-Normal.otf')  format('opentype'),
+		  url('https://chain.com/docs/fonts/Nitti-Normal.woff') format('woff'), url('https://chain.com/docs/fonts/Nitti-Normal.ttf')  format('truetype'), url('https://chain.com/docs/fonts/Nitti-Normal.svg#Nitti-Normal') format('svg');
+		  font-weight: normal;
+		  font-style: normal;
+		}
+
+		@font-face {
+		  font-family: 'Nitti-Medium';
+		  src: url('https://chain.com/docs/fonts/Nitti-Medium.eot?#iefix') format('embedded-opentype'),  url('https://chain.com/docs/fonts/Nitti-Medium.otf')  format('opentype'),
+				 url('https://chain.com/docs/fonts/Nitti-Medium.woff') format('woff'), url('https://chain.com/docs/fonts/Nitti-Medium.ttf')  format('truetype'), url('https://chain.com/docs/fonts/Nitti-Medium.svg#Nitti-Medium') format('svg');
+		  font-weight: normal;
+		  font-style: normal;
+		}
+
+		@font-face {
+		  font-family: 'NittiGrotesk-Normal';
+		  src: url('https://chain.com/docs/fonts/NittiGrotesk-Normal.eot?#iefix') format('embedded-opentype'),  url('https://chain.com/docs/fonts/NittiGrotesk-Normal.otf')  format('opentype'),
+				 url('https://chain.com/docs/fonts/NittiGrotesk-Normal.woff') format('woff'), url('https://chain.com/docs/fonts/NittiGrotesk-Normal.ttf')  format('truetype'), url('https://chain.com/docs/fonts/NittiGrotesk-Normal.svg#NittiGrotesk-Normal') format('svg');
+		  font-weight: normal;
+		  font-style: normal;
+		}
+
+		@font-face {
+		  font-family: 'NittiGrotesk-Medium';
+		  src: url('https://chain.com/docs/fonts/NittiGrotesk-Medium.eot?#iefix') format('embedded-opentype'),  url('https://chain.com/docs/fonts/NittiGrotesk-Medium.otf')  format('opentype'),
+				 url('https://chain.com/docs/fonts/NittiGrotesk-Medium.woff') format('woff'), url('https://chain.com/docs/fonts/NittiGrotesk-Medium.ttf')  format('truetype'), url('https://chain.com/docs/fonts/NittiGrotesk-Medium.svg#NittiGrotesk-Medium') format('svg');
+		  font-weight: normal;
+		  font-style: normal;
+		}
+
+		@font-face {
+		  font-family: 'NittiGrotesk-Bold';
+		  src: url('https://chain.com/docs/fonts/NittiGrotesk-Bold.eot?#iefix') format('embedded-opentype'),  url('https://chain.com/docs/fonts/NittiGrotesk-Bold.otf')  format('opentype'),
+				 url('https://chain.com/docs/fonts/NittiGrotesk-Bold.woff') format('woff'), url('https://chain.com/docs/fonts/NittiGrotesk-Bold.ttf')  format('truetype'), url('https://chain.com/docs/fonts/NittiGrotesk-Bold.svg#NittiGrotesk-Bold') format('svg');
+		  font-weight: normal;
+		  font-style: normal;
+		}
+			#loader {
+				width: 600px;
+				margin: 50px auto;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Installing...</h1>
+		<p>{{.InstallID}}</p>
+	</body>
+</html>
+`
+
 func Handler(oauthClientID, oauthClientSecret, host string) http.Handler {
 	h := &handler{
 		oauthClientID:     oauthClientID,
 		oauthClientSecret: oauthClientSecret,
 		host:              host,
+		progressTmpl:      template.Must(template.New("progresspage").Parse(progressPageHtml)),
 		installs:          make(map[string]*install),
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status/", h.status)
 	mux.HandleFunc("/progress", h.progressPage)
+	mux.Handle("/static/", http.FileServer(http.Dir("static")))
 	mux.HandleFunc("/", h.index)
 	return mux
 }
@@ -32,6 +97,7 @@ type handler struct {
 	oauthClientID     string
 	oauthClientSecret string
 	host              string
+	progressTmpl      *template.Template
 
 	installMu sync.Mutex
 	installs  map[string]*install
@@ -138,8 +204,15 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 
 	go curr.init(decodedResponse.AccessToken, core)
 
-	// TODO(jackson): Print a webpage with a React app here.
-	rw.Write([]byte(state))
+	tmplData := struct {
+		InstallID string
+	}{
+		InstallID: state,
+	}
+	err = h.progressTmpl.Execute(rw, tmplData)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "revoking: %s", err.Error())
+	}
 }
 
 func (h *handler) status(rw http.ResponseWriter, req *http.Request) {
