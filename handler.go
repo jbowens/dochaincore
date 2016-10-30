@@ -20,59 +20,24 @@ const progressPageHtml = `
 <html>
 	<head>
 		<title>One-Click Chain Core DigitalOcean</title>
-		<link rel="stylesheet" href="https://chain.com/docs/css/style.css">
-		<link rel="stylesheet" href="https://chain.com/docs/css/prettyify.css">
+		<link rel="stylesheet" href="/static/style.css">
 		<script src="https://chain.com/docs/js/jquery.min.js"></script>
-		<style type="text/css">
-
-		@font-face {
-		  font-family: 'Nitti-Normal';
-		  src: url('https://chain.com/docs/fonts/Nitti-Normal.eot?#iefix') format('embedded-opentype'),  url('https://chain.com/docs/fonts/Nitti-Normal.otf')  format('opentype'),
-		  url('https://chain.com/docs/fonts/Nitti-Normal.woff') format('woff'), url('https://chain.com/docs/fonts/Nitti-Normal.ttf')  format('truetype'), url('https://chain.com/docs/fonts/Nitti-Normal.svg#Nitti-Normal') format('svg');
-		  font-weight: normal;
-		  font-style: normal;
-		}
-
-		@font-face {
-		  font-family: 'Nitti-Medium';
-		  src: url('https://chain.com/docs/fonts/Nitti-Medium.eot?#iefix') format('embedded-opentype'),  url('https://chain.com/docs/fonts/Nitti-Medium.otf')  format('opentype'),
-				 url('https://chain.com/docs/fonts/Nitti-Medium.woff') format('woff'), url('https://chain.com/docs/fonts/Nitti-Medium.ttf')  format('truetype'), url('https://chain.com/docs/fonts/Nitti-Medium.svg#Nitti-Medium') format('svg');
-		  font-weight: normal;
-		  font-style: normal;
-		}
-
-		@font-face {
-		  font-family: 'NittiGrotesk-Normal';
-		  src: url('https://chain.com/docs/fonts/NittiGrotesk-Normal.eot?#iefix') format('embedded-opentype'),  url('https://chain.com/docs/fonts/NittiGrotesk-Normal.otf')  format('opentype'),
-				 url('https://chain.com/docs/fonts/NittiGrotesk-Normal.woff') format('woff'), url('https://chain.com/docs/fonts/NittiGrotesk-Normal.ttf')  format('truetype'), url('https://chain.com/docs/fonts/NittiGrotesk-Normal.svg#NittiGrotesk-Normal') format('svg');
-		  font-weight: normal;
-		  font-style: normal;
-		}
-
-		@font-face {
-		  font-family: 'NittiGrotesk-Medium';
-		  src: url('https://chain.com/docs/fonts/NittiGrotesk-Medium.eot?#iefix') format('embedded-opentype'),  url('https://chain.com/docs/fonts/NittiGrotesk-Medium.otf')  format('opentype'),
-				 url('https://chain.com/docs/fonts/NittiGrotesk-Medium.woff') format('woff'), url('https://chain.com/docs/fonts/NittiGrotesk-Medium.ttf')  format('truetype'), url('https://chain.com/docs/fonts/NittiGrotesk-Medium.svg#NittiGrotesk-Medium') format('svg');
-		  font-weight: normal;
-		  font-style: normal;
-		}
-
-		@font-face {
-		  font-family: 'NittiGrotesk-Bold';
-		  src: url('https://chain.com/docs/fonts/NittiGrotesk-Bold.eot?#iefix') format('embedded-opentype'),  url('https://chain.com/docs/fonts/NittiGrotesk-Bold.otf')  format('opentype'),
-				 url('https://chain.com/docs/fonts/NittiGrotesk-Bold.woff') format('woff'), url('https://chain.com/docs/fonts/NittiGrotesk-Bold.ttf')  format('truetype'), url('https://chain.com/docs/fonts/NittiGrotesk-Bold.svg#NittiGrotesk-Bold') format('svg');
-		  font-weight: normal;
-		  font-style: normal;
-		}
-			#loader {
-				width: 600px;
-				margin: 50px auto;
-			}
-		</style>
+		<script type="text/javascript">
+			window.installID = "{{.InstallID}}";
+		</script>
+		<script src="/static/progress.js"></script>
 	</head>
 	<body>
-		<h1>Installing...</h1>
-		<p>{{.InstallID}}</p>
+		<div id="content">
+			<div id="header">
+				<a href="https://chain.com"><img src="https://chain.com/docs/images/chain-brand.png" alt="Chain" class="mainsite" /></a>
+			</div>
+
+			<div id="progress-bar">
+				<div id="current-progress"></div>
+			</div>
+			<p id="status-line">Initializing droplet&hellip;</p>
+		</div>
 	</body>
 </html>
 `
@@ -88,7 +53,8 @@ func Handler(oauthClientID, oauthClientSecret, host string) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status/", h.status)
 	mux.HandleFunc("/progress", h.progressPage)
-	mux.Handle("/static/", http.FileServer(http.Dir("static")))
+	mux.HandleFunc("/progress-template", h.progressTemplate)
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	mux.HandleFunc("/", h.index)
 	return mux
 }
@@ -211,7 +177,19 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 	}
 	err = h.progressTmpl.Execute(rw, tmplData)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "revoking: %s", err.Error())
+		fmt.Fprintf(os.Stderr, "executing template: %s", err.Error())
+	}
+}
+
+func (h *handler) progressTemplate(rw http.ResponseWriter, req *http.Request) {
+	tmplData := struct {
+		InstallID string
+	}{
+		InstallID: "0cd3c92277bf608247659f9b2516f1f3",
+	}
+	err := h.progressTmpl.Execute(rw, tmplData)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "executing template: %s", err.Error())
 	}
 }
 

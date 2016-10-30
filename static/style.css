@@ -1,0 +1,51 @@
+@font-face {
+  font-family: 'Nitti-Normal';
+  src: url('/static/fonts/Nitti-Normal.eot?#iefix') format('embedded-opentype'),  url('/static/Nitti-Normal.otf')  format('opentype'),
+  url('/static/fonts/Nitti-Normal.woff') format('woff'), url('/static/fonts/Nitti-Normal.ttf')  format('truetype'), url('/static/fonts/Nitti-Normal.svg#Nitti-Normal') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NittiGrotesk-Normal';
+  src: url('/static/fonts/NittiGrotesk-Normal.eot?#iefix') format('embedded-opentype'),  url('/static/fonts/NittiGrotesk-Normal.otf')  format('opentype'),
+       url('/static/fonts/NittiGrotesk-Normal.woff') format('woff'), url('/static/fonts/NittiGrotesk-Normal.ttf')  format('truetype'), url('/static/fonts/NittiGrotesk-Normal.svg#NittiGrotesk-Normal') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+#content {
+  width: 600px;
+  margin: 50px auto;
+  font-family: 'Nitti-Normal';
+}
+
+a {
+  text-decoration: none;
+  font-family: 'NittiGrotesk-Normal';
+}
+
+#header {
+  padding: 50px 0;
+}
+
+#header img.mainsite {
+  width: 100px;
+}
+
+#progress-bar {
+  height: 20px;
+  width: 100%;
+  background: rgb(252, 252, 252);
+}
+
+#current-progress {
+  width: 39%;
+  height: 100%;
+  background: rgb(0, 191, 170);
+}
