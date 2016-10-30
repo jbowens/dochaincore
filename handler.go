@@ -5,9 +5,12 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
+	"strings"
 	"sync"
 )
 
@@ -125,6 +128,14 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 	}
 
+	// We don't need the access token anymore, so revoke it.
+	go func() {
+		err := revoke(decodedResponse.AccessToken)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "revoking: %s", err.Error())
+		}
+	}()
+
 	go curr.init(decodedResponse.AccessToken, core)
 
 	// TODO(jackson): Print a webpage with a React app here.
@@ -151,6 +162,24 @@ func (h *handler) status(rw http.ResponseWriter, req *http.Request) {
 
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(buf.Bytes())
+}
+
+func revoke(accessToken string) error {
+	body := strings.NewReader(url.Values{"token": {accessToken}}.Encode())
+	req, err := http.NewRequest("POST", "https://cloud.digitalocean.com/v1/oauth/revoke", body)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("revoke endpoint returned %d status code", resp.StatusCode)
+	}
+	return nil
 }
 
 type install struct {
