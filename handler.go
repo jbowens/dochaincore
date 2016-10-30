@@ -19,7 +19,7 @@ func Handler(oauthClientID, oauthClientSecret, host string) http.Handler {
 		installs:          make(map[string]*install),
 	}
 	mux := http.NewServeMux()
-	mux.HandleFunc("/status", h.status)
+	mux.HandleFunc("/status/", h.status)
 	mux.HandleFunc("/progress", h.progressPage)
 	mux.HandleFunc("/", h.index)
 	return mux
