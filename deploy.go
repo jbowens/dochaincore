@@ -53,8 +53,8 @@ type options struct {
 	volumeSize    int64
 }
 
-// Deploy builds and deploys an instance of Chain Core on a Digital Ocean
-// droplet. It requires a Digital Ocean access token and optionally takes
+// Deploy builds and deploys an instance of Chain Core on a DigitalOcean
+// droplet. It requires a DigitalOcean access token and optionally takes
 // a variadic number of configuration options.
 func Deploy(accessToken string, opts ...Option) (*Core, error) {
 	opt := options{
@@ -103,7 +103,7 @@ func Deploy(accessToken string, opts ...Option) (*Core, error) {
 		return nil, err
 	}
 
-	// Launch the Digital Ocean droplet.
+	// Launch the DigitalOcean droplet.
 	createRequest := &godo.DropletCreateRequest{
 		Name:     opt.dropletName,
 		Region:   opt.dropletRegion,

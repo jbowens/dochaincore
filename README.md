@@ -1,7 +1,7 @@
 # dochaincore
 [![GoDoc](https://godoc.org/github.com/jbowens/dochaincore?status.svg)](https://godoc.org/github.com/jbowens/dochaincore)
 
-[Chain Core Developer Edition](https://chain.com) one-click deploy to a [Digital Ocean](https://digitalocean.com) droplet.
+[Chain Core Developer Edition](https://chain.com) one-click deploy to a [DigitalOcean](https://digitalocean.com) droplet.
 
 ## Command line
 
