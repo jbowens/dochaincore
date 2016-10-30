@@ -47,7 +47,7 @@ func (h *handler) index(rw http.ResponseWriter, req *http.Request) {
 	h.installs[installID] = &install{Status: "pending auth"}
 	h.installMu.Unlock()
 
-	var vals url.Values
+	vals := make(url.Values)
 	vals.Set("response_type", "code")
 	vals.Set("client_id", h.oauthClientID)
 	vals.Set("state", installID)
@@ -78,7 +78,7 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// Claim the code grant
-	var vals url.Values
+	vals := make(url.Values)
 	vals.Set("grant_type", "authorization_code")
 	vals.Set("code", code)
 	vals.Set("client_id", h.oauthClientID)
