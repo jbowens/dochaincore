@@ -8,10 +8,10 @@ import (
 )
 
 func waitForPort(host string, port int) error {
-	for attempt := uint(0); attempt < 10; attempt++ {
+	for attempt := uint(0); attempt < 15; attempt++ {
 		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
 		if err != nil && strings.Contains(strings.ToLower(err.Error()), "refused") {
-			time.Sleep(time.Duration(1<<attempt) * time.Second)
+			time.Sleep(5 * time.Second)
 			continue
 		} else if err != nil {
 			return err
