@@ -1,13 +1,19 @@
 $(document).ready(function() {
 
-  function updateProgressBar(pct, extraMax, extraDuration) {
-      $('#current-progress').animate({width: pct+'%'}, 1000, 'swing', function() {
+  var currentPct = 0;
 
-        // If there's an extra easing, then animate that too.
-        if (extraMax && extraDuration) {
-          $('#current-progress').animate({width: extraMax+'%'}, extraDuration);
-        }
-      });
+  function updateProgressBar(pct, extraMax, extraDuration) {
+      if (currentPct != pct) {
+          currentPct = pct;
+          $('#current-progress').stop();
+          $('#current-progress').animate({width: pct+'%'}, 1000, 'swing', function() {
+
+            // If there's an extra easing, then animate that too.
+            if (extraMax && extraDuration) {
+              $('#current-progress').animate({width: extraMax+'%'}, extraDuration);
+            }
+          });
+      }
   }
 
   function updateUI() {

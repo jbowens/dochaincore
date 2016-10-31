@@ -75,7 +75,7 @@ func Handler(oauthClientID, oauthClientSecret, host string) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status/", h.status)
 	mux.HandleFunc("/grant", h.grant)
-	mux.HandleFunc("/progress/", h.progressPage)
+	mux.HandleFunc("/install/", h.progressPage)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	mux.HandleFunc("/", h.index)
 	return mux
