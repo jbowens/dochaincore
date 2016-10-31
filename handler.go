@@ -56,8 +56,8 @@ const progressPageHTML = `
 				<p>Success! Chain Core has been installed on your DigitalOcean droplet. To access
 				Chain Core's API and Dashboard, you'll need your client token:</p>
 				<div class="coredata">
-					<strong>URL:</strong> <code id="core-url"></code>
-					<strong>Token:</strong> <code id="client-token"></code>
+					<div><strong>URL:</strong> <code id="core-url"></code></div>
+					<div><strong>Token:</strong> <code id="client-token"></code></div>
 				</div>
 				<a href="http://:1999/dashboard" target="_blank" class="btn-success" id="open-dashboard">Open dashboard</a>
 			</div>

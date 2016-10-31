@@ -23,14 +23,14 @@ $(document).ready(function() {
               $('#status-line').text('Provisioning droplet…');
               updateProgressBar(5);
           } else if (resp.status == 'waiting for ssh') {
-              $('#status-line').text('Waiting for SSH…');
-              updateProgressBar(10, 45, 45000);
+              $('#status-line').text('Setting up droplet…');
+              updateProgressBar(10, 55, 45000);
           } else if (resp.status == 'waiting for http') {
-              $('#status-line').text('Waiting for HTTP…');
-              updateProgressBar(45, 90, 45000);
+              $('#status-line').text('Installing Chain Core…');
+              updateProgressBar(55, 95, 45000);
           } else if (resp.status == 'creating client token') {
               $('#status-line').text('Creating client token…');
-              updateProgressBar(95, 99, 2000);
+              updateProgressBar(98, 100, 2000);
           } else if (resp.status == 'done') {
               $('#status-line').text('Install complete');
               updateProgressBar(100);
