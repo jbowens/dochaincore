@@ -265,15 +265,17 @@ func (i *install) init(accessToken string, c *Core) {
 	i.Status = "waiting for ssh"
 	i.mu.Unlock()
 
+	var err error
 	defer func() {
 		i.mu.Lock()
-		if i.Status != "done" {
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "init error: %s", err.Error())
 			i.Status = "failed"
 		}
 		i.mu.Unlock()
 	}()
 
-	err := WaitForSSH(c)
+	err = WaitForSSH(c)
 	if err != nil {
 		return
 	}
