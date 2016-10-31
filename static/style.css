@@ -40,7 +40,7 @@ p {
 }
 
 #header {
-  padding: 50px 0;
+  padding: 50px 0 30px 0;
 }
 
 #header img.mainsite {
@@ -49,6 +49,12 @@ p {
 
 code#client-token {
   font-family: 'NittiGrotesk-Normal';
+  font-size: 1.1em;
+  letter-spacing: 0.01em;
+  background: #20252d;
+  color: #d4d7de;
+  padding: 10px;
+  border-radius: 3px;
 }
 
 #progress-bar {
@@ -66,6 +72,10 @@ code#client-token {
 #core-info {
   margin: 50px 0;
   display: none;
+}
+
+#install-btn {
+  margin-top: 50px;
 }
 
 a.btn-success {

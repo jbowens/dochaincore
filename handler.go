@@ -26,9 +26,7 @@ const indexPageHTML = `<!DOCTYPE html>
 			<div id="header">
 				<a href="https://chain.com"><img src="https://chain.com/docs/images/chain-brand.png" alt="Chain" class="mainsite" /></a>
 			</div>
-
 			<p>Install <a href="https://chain.com">Chain Core</a> on a DigitalOcean droplet. This installer creates a new 1gb droplet and a 100gb block storage volume on your DigitalOcean account. It installs Chain Core on the droplet using the attached volume for storage. The approximate cost on DigitalOcean is $20/month.</p>
-
 			<a href="{{.InstallLink}}" class="btn-success" id="install-btn">Install Chain Core</a>
   		</div>
 	</body>
@@ -50,15 +48,14 @@ const progressPageHTML = `
 			<div id="header">
 				<a href="https://chain.com"><img src="https://chain.com/docs/images/chain-brand.png" alt="Chain" class="mainsite" /></a>
 			</div>
-
 			<div id="progress-bar">
 				<div id="current-progress"></div>
 			</div>
 			<p id="status-line">Initializing droplet&hellip;</p>
-
 			<div id="core-info">
-				<code id="client-token">
-				</code>
+				<p>Success! Chain Core has been installed on your DigitalOcean droplet. To access
+				Chain Core's API and Dashboard, you'll need your client token:</p>
+				<code id="client-token"></code>
 				<a href="http://:1999/dashboard" target="_blank" class="btn-success" id="open-dashboard">Open dashboard</a>
 			</div>
 		</div>
@@ -77,7 +74,8 @@ func Handler(oauthClientID, oauthClientSecret, host string) http.Handler {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status/", h.status)
-	mux.HandleFunc("/progress", h.progressPage)
+	mux.HandleFunc("/grant", h.grant)
+	mux.HandleFunc("/progress/", h.progressPage)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	mux.HandleFunc("/", h.index)
 	return mux
@@ -128,7 +126,7 @@ func (h *handler) index(rw http.ResponseWriter, req *http.Request) {
 	h.indexTmpl.Execute(rw, tmplData)
 }
 
-func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
+func (h *handler) grant(rw http.ResponseWriter, req *http.Request) {
 	code, state := req.FormValue("code"), req.FormValue("state")
 	if code == "" || state == "" {
 		http.Error(rw, "invalid oauth2 grant", http.StatusBadRequest)
@@ -189,14 +187,32 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	go curr.init(decodedResponse.AccessToken, state)
+	curr.mu.Lock()
+	curr.accessToken = decodedResponse.AccessToken
+	curr.mu.Unlock()
+
+	http.Redirect(rw, req, "/install/"+state, http.StatusFound)
+}
+
+func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
+	id := path.Base(req.URL.Path)
+	h.installMu.Lock()
+	curr := h.installs[id]
+	h.installMu.Unlock()
+
+	if curr == nil {
+		http.NotFound(rw, req)
+		return
+	}
+
+	go curr.init(id)
 
 	tmplData := struct {
 		InstallID string
 	}{
-		InstallID: state,
+		InstallID: id,
 	}
-	err = h.progressTmpl.Execute(rw, tmplData)
+	err := h.progressTmpl.Execute(rw, tmplData)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "executing template: %s", err.Error())
 	}
@@ -239,8 +255,8 @@ func (i *install) setStatus(status string) {
 	i.Status = status
 }
 
-func (i *install) init(accessToken, state string) {
-	defer revoke(accessToken)
+func (i *install) init(state string) {
+	defer revoke(i.accessToken)
 
 	var core *Core
 	var err error
@@ -252,14 +268,13 @@ func (i *install) init(accessToken, state string) {
 	}()
 
 	// Start deploying and create the droplet.
-	core, err = Deploy(accessToken, DropletName("chain-core-"+state[:6]))
+	core, err = Deploy(i.accessToken, DropletName("chain-core-"+state[:6]))
 	if err != nil {
 		return
 	}
 
 	i.mu.Lock()
 	i.IPAddress = core.IPv4Address
-	i.accessToken = accessToken
 	i.c = core
 	i.Status = "waiting for ssh"
 	i.mu.Unlock()
