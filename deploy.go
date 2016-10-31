@@ -206,7 +206,7 @@ func CreateClientToken(c *Core) (string, error) {
 	output := strings.Join(lines, "\n")
 	output = strings.TrimSpace(output)
 
-	if !strings.HasPrefix(output, "dochaincore") {
+	if !strings.HasPrefix(output, "do:") {
 		return "", errors.New(output)
 	}
 	return output, nil
