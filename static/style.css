@@ -17,6 +17,7 @@
 html, body {
   margin: 0;
   padding: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
 #content {
@@ -40,12 +41,38 @@ a {
 
 #progress-bar {
   height: 20px;
-  width: 100%;
+  width: 600px;
   background: rgb(252, 252, 252);
 }
 
 #current-progress {
-  width: 39%;
+  width: 5%;
   height: 100%;
   background: rgb(0, 191, 170);
+}
+
+#core-info {
+  margin: 50px 0;
+  display: none;
+}
+
+a.btn-success {
+  font-family: NittiGrotesk-Normal;
+  margin-top: 10px;
+  line-height: 39px;
+  min-width: 155px;
+  max-width: 200px;
+  border-radius: 3px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  display: block;
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 18px;
+  background-color: #00BFAA;
+  border: 1px solid #00BFAA;
+  height: 39px;
+  padding: 5px 30px;
+  text-align: center;
 }

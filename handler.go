@@ -37,6 +37,10 @@ const progressPageHtml = `
 				<div id="current-progress"></div>
 			</div>
 			<p id="status-line">Initializing droplet&hellip;</p>
+
+			<div id="core-info">
+				<a href="http://:1999/dashboard" class="btn-success" id="open-dashboard">Open dashboard</a>
+			</div>
 		</div>
 	</body>
 </html>
@@ -237,6 +241,7 @@ type install struct {
 	mu          sync.Mutex
 	Status      string `json:"status"`
 	ClientToken string `json:"client_token"`
+	IPAddress   string `json:"ip_address"`
 	accessToken string
 	c           *Core
 }
@@ -249,6 +254,7 @@ func (i *install) setStatus(status string) {
 
 func (i *install) init(accessToken string, c *Core) {
 	i.mu.Lock()
+	i.IPAddress = c.IPv4Address
 	i.accessToken = accessToken
 	i.c = c
 	i.Status = "waiting for ssh"

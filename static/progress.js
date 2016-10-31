@@ -17,8 +17,10 @@ $(document).ready(function() {
               $('#status-line').text('Creating client token…');
               updateProgressBar(95);
           } else if (resp.status == 'done') {
-              $('status-line').text('Install complete');
+              $('#status-line').text('Install complete');
               updateProgressBar(100);
+              $('#open-dashboard').href('http://' + resp.client_token + '@' + resp.ip_address + '/dashboard');
+              $('#core-info').show();
           } else if (resp.status == 'failed') {
               $('status-line').text('Install failed');
               updateProgressBar(0);
