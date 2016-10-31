@@ -174,7 +174,7 @@ func WaitForHTTP(c *Core) error {
 // provided Core.
 func CreateClientToken(c *Core) (string, error) {
 	const createClientToken = `
-	docker exec dochaincore /usr/bin/chain/corectl create-token dochaincore
+	docker exec dochaincore /usr/bin/chain/corectl create-token do
 	`
 	// TODO(jackson): remove the ssh key from authorized_keys before
 	// closing the SSH session.
