@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
   function updateProgressBar(pct) {
-      $('#progress-bar').width(pct+"%");
+      $('#progress-bar').animate({width: pct+'%'}, 400);
   }
 
   function updateUI() {
