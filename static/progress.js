@@ -19,7 +19,7 @@ $(document).ready(function() {
           } else if (resp.status == 'done') {
               $('#status-line').text('Install complete');
               updateProgressBar(100);
-              $('#open-dashboard').attr('href', 'http://' + resp.client_token + '@' + resp.ip_address + '/dashboard');
+              $('#open-dashboard').attr('href', 'http://' + resp.client_token + '@' + resp.ip_address + ':1999/dashboard');
               $('#core-info').css('display', 'block');
           } else if (resp.status == 'failed') {
               $('status-line').text('Install failed');
