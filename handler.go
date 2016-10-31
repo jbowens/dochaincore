@@ -39,6 +39,8 @@ const progressPageHtml = `
 			<p id="status-line">Initializing droplet&hellip;</p>
 
 			<div id="core-info">
+				<code id="client-token">
+				</code>
 				<a href="http://:1999/dashboard" class="btn-success" id="open-dashboard">Open dashboard</a>
 			</div>
 		</div>

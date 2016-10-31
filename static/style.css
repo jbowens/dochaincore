@@ -21,7 +21,7 @@ html, body {
 }
 
 #content {
-  width: 600px;
+  width: 700px;
   margin: 50px auto;
   font-family: 'Nitti-Normal';
 }
@@ -39,9 +39,13 @@ a {
   width: 100px;
 }
 
+code#client-token {
+  font-family: 'NittiGrotesk-Normal';
+}
+
 #progress-bar {
   height: 20px;
-  width: 600px;
+  width: 700px;
   background: rgb(252, 252, 252);
 }
 
