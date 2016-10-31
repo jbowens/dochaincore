@@ -161,6 +161,13 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 		http.Error(rw, "need read write OAuth scope", http.StatusBadRequest)
 		return
 	}
+	defer func() {
+		// We don't need the access token after this function completes.
+		err := revoke(decodedResponse.AccessToken)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "revoking: %s", err.Error())
+		}
+	}()
 
 	// Start deploying and create the droplet.
 	core, err := Deploy(decodedResponse.AccessToken)
@@ -168,14 +175,6 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	// We don't need the access token anymore, so revoke it.
-	go func() {
-		err := revoke(decodedResponse.AccessToken)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "revoking: %s", err.Error())
-		}
-	}()
 
 	go curr.init(decodedResponse.AccessToken, core)
 
