@@ -1,7 +1,13 @@
 $(document).ready(function() {
 
-  function updateProgressBar(pct) {
-      $('#current-progress').animate({width: pct+'%'}, 1000);
+  function updateProgressBar(pct, extraMax, extraDuration) {
+      $('#current-progress').animate({width: pct+'%'}, 1000, 'swing', function() {
+
+        // If there's an extra easing, then animate that too.
+        if (extraMax && extraDuration) {
+          $('#current-progress').animate({width: extraMax+'%'}, extraDuration);
+        }
+      });
   }
 
   function updateUI() {
@@ -9,16 +15,16 @@ $(document).ready(function() {
           console.log(resp);
           if (resp.status == 'pending auth') {
               $('#status-line').text('Provisioning droplet…');
-              updateProgressBar(10);
+              updateProgressBar(5);
           } else if (resp.status == 'waiting for ssh') {
               $('#status-line').text('Waiting for SSH…');
-              updateProgressBar(20);
+              updateProgressBar(10, 45, 45000);
           } else if (resp.status == 'waiting for http') {
               $('#status-line').text('Waiting for HTTP…');
-              updateProgressBar(45);
+              updateProgressBar(45, 90, 45000);
           } else if (resp.status == 'creating client token') {
               $('#status-line').text('Creating client token…');
-              updateProgressBar(95);
+              updateProgressBar(95, 99, 2000);
           } else if (resp.status == 'done') {
               $('#status-line').text('Install complete');
               updateProgressBar(100);

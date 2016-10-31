@@ -64,7 +64,7 @@ code#client-token {
 }
 
 #current-progress {
-  width: 5%;
+  width: 2%;
   height: 100%;
   background: rgb(0, 191, 170);
 }
