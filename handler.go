@@ -110,7 +110,7 @@ func (h *handler) index(rw http.ResponseWriter, req *http.Request) {
 	vals.Set("client_id", h.oauthClientID)
 	vals.Set("state", installID)
 	vals.Set("scope", "read write")
-	vals.Set("redirect_uri", h.host+"/progress")
+	vals.Set("redirect_uri", h.host+"/grant")
 	u := url.URL{
 		Scheme:   "https",
 		Host:     "cloud.digitalocean.com",
@@ -147,7 +147,7 @@ func (h *handler) grant(rw http.ResponseWriter, req *http.Request) {
 	vals.Set("code", code)
 	vals.Set("client_id", h.oauthClientID)
 	vals.Set("client_secret", h.oauthClientSecret)
-	vals.Set("redirect_uri", h.host+"/progress")
+	vals.Set("redirect_uri", h.host+"/grant")
 	u := url.URL{
 		Scheme:   "https",
 		Host:     "cloud.digitalocean.com",
