@@ -35,6 +35,8 @@ a {
 p {
   font-family: 'NittiGrotesk-Normal';
   font-size: 1.1em;
+  color: #222;
+  letter-spacing: 0.01em;
 }
 
 #header {
