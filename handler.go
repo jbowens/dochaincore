@@ -188,22 +188,8 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 		http.Error(rw, "need read write OAuth scope", http.StatusBadRequest)
 		return
 	}
-	defer func() {
-		// We don't need the access token after this function completes.
-		err := revoke(decodedResponse.AccessToken)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "revoking: %s", err.Error())
-		}
-	}()
 
-	// Start deploying and create the droplet.
-	core, err := Deploy(decodedResponse.AccessToken, DropletName("chain-core-"+state[:6]))
-	if err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	go curr.init(decodedResponse.AccessToken, core)
+	go curr.init(decodedResponse.AccessToken, state)
 
 	tmplData := struct {
 		InstallID string
@@ -238,6 +224,70 @@ func (h *handler) status(rw http.ResponseWriter, req *http.Request) {
 	rw.Write(buf.Bytes())
 }
 
+type install struct {
+	mu          sync.Mutex
+	Status      string `json:"status"`
+	ClientToken string `json:"client_token"`
+	IPAddress   string `json:"ip_address"`
+	accessToken string
+	c           *Core
+}
+
+func (i *install) setStatus(status string) {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+	i.Status = status
+}
+
+func (i *install) init(accessToken, state string) {
+	defer revoke(accessToken)
+
+	var core *Core
+	var err error
+
+	defer func() {
+		if err != nil {
+			i.setStatus(err.Error())
+		}
+	}()
+
+	// Start deploying and create the droplet.
+	core, err = Deploy(accessToken, DropletName("chain-core-"+state[:6]))
+	if err != nil {
+		return
+	}
+
+	i.mu.Lock()
+	i.IPAddress = core.IPv4Address
+	i.accessToken = accessToken
+	i.c = core
+	i.Status = "waiting for ssh"
+	i.mu.Unlock()
+
+	err = WaitForSSH(core)
+	if err != nil {
+		return
+	}
+
+	i.setStatus("waiting for http")
+	err = WaitForHTTP(core)
+	if err != nil {
+		return
+	}
+
+	i.setStatus("creating client token")
+	token, err := CreateClientToken(core)
+	if err != nil {
+		return
+	}
+
+	i.mu.Lock()
+	i.Status = "done"
+	i.ClientToken = token
+	i.c = nil // garbage collect the SSH keys
+	i.mu.Unlock()
+}
+
 func revoke(accessToken string) error {
 	body := strings.NewReader(url.Values{"token": {accessToken}}.Encode())
 	req, err := http.NewRequest("POST", "https://cloud.digitalocean.com/v1/oauth/revoke", body)
@@ -254,51 +304,4 @@ func revoke(accessToken string) error {
 		return fmt.Errorf("revoke endpoint returned %d status code", resp.StatusCode)
 	}
 	return nil
-}
-
-type install struct {
-	mu          sync.Mutex
-	Status      string `json:"status"`
-	ClientToken string `json:"client_token"`
-	IPAddress   string `json:"ip_address"`
-	accessToken string
-	c           *Core
-}
-
-func (i *install) setStatus(status string) {
-	i.mu.Lock()
-	defer i.mu.Unlock()
-	i.Status = status
-}
-
-func (i *install) init(accessToken string, c *Core) {
-	i.mu.Lock()
-	i.IPAddress = c.IPv4Address
-	i.accessToken = accessToken
-	i.c = c
-	i.Status = "waiting for ssh"
-	i.mu.Unlock()
-
-	err := WaitForSSH(c)
-	if err != nil {
-		return
-	}
-
-	i.setStatus("waiting for http")
-	err = WaitForHTTP(c)
-	if err != nil {
-		return
-	}
-
-	i.setStatus("creating client token")
-	token, err := CreateClientToken(c)
-	if err != nil {
-		return
-	}
-
-	i.mu.Lock()
-	i.Status = "done"
-	i.ClientToken = token
-	i.c = nil // garbage collect the SSH keys
-	i.mu.Unlock()
 }
