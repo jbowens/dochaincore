@@ -52,7 +52,7 @@ code#client-token {
   font-size: 1.1em;
   letter-spacing: 0.01em;
   color: #333;
-  margin: 10px 0 30px 0;
+  margin: 30px 0 30px 0;
 }
 
 #progress-bar {
@@ -74,6 +74,10 @@ code#client-token {
 
 #install-btn {
   margin-top: 50px;
+}
+
+#open-dashboard {
+  margin-top: 40px;
 }
 
 a.btn-success {
