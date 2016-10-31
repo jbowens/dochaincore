@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
   function updateProgressBar(pct) {
-      $('#progress-bar').animate({width: pct+'%'}, 400);
+      $('#current-progress').animate({width: pct+'%'}, 400);
   }
 
   function updateUI() {
@@ -26,7 +26,9 @@ $(document).ready(function() {
               updateProgressBar(0);
           }
 
-          setTimeout(updateUI, 1000);
+          if (resp.status != 'done' && resp.status != 'failed') {
+              setTimeout(updateUI, 1000);
+          }
       });
   }
 
