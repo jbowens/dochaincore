@@ -132,6 +132,7 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 	resp, err := http.Post(u.String(), "application/x-www-form-urlencoded", nil)
 	if err != nil {
 		http.Error(rw, "internal server error", http.StatusInternalServerError)
+		return
 	}
 	defer resp.Body.Close()
 
@@ -150,18 +151,22 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 	err = json.NewDecoder(resp.Body).Decode(&decodedResponse)
 	if err != nil {
 		http.Error(rw, "err decoding access token grant", http.StatusBadRequest)
+		return
 	}
 	if decodedResponse.AccessToken == "" {
 		http.Error(rw, "missing access token", http.StatusBadRequest)
+		return
 	}
 	if decodedResponse.Scope != "read write" {
 		http.Error(rw, "need read write OAuth scope", http.StatusBadRequest)
+		return
 	}
 
 	// Start deploying and create the droplet.
 	core, err := Deploy(decodedResponse.AccessToken)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	// We don't need the access token anymore, so revoke it.
