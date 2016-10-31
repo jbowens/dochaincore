@@ -3,14 +3,13 @@ package dochaincore
 import (
 	"fmt"
 	"net"
-	"strings"
 	"time"
 )
 
 func waitForPort(host string, port int) error {
 	for attempt := uint(0); attempt < 15; attempt++ {
 		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
-		if err != nil && strings.Contains(strings.ToLower(err.Error()), "refused") {
+		if err != nil {
 			time.Sleep(5 * time.Second)
 			continue
 		} else if err != nil {
