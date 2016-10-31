@@ -15,7 +15,25 @@ import (
 	"sync"
 )
 
-const progressPageHtml = `
+const indexPageHTML = `<!DOCTYPE html>
+<html>
+	<head>
+		<title>One-Click Chain Core DigitalOcean</title>
+		<link rel="stylesheet" href="/static/style.css">
+	</head>
+	<body>
+		<div id="content">
+			<div id="header">
+				<a href="https://chain.com"><img src="https://chain.com/docs/images/chain-brand.png" alt="Chain" class="mainsite" /></a>
+			</div>
+
+			<p>Install <a href="https://chain.com">Chain Core</a> on a DigitalOcean droplet. This installer creates a new 1gb droplet and a 100gb block storage volume on your DigitalOcean account. It installs Chain Core on the droplet using the attached volume for storage. The approximate cost on DigitalOcean is $20/month.</p>
+
+			<a href="{{.InstallLink}}" class="btn-success" id="install-btn">Install Chain Core</a>
+  		</div>
+	</body>
+</html>`
+const progressPageHTML = `
 <!DOCTYPE html>
 <html>
 	<head>
@@ -53,13 +71,13 @@ func Handler(oauthClientID, oauthClientSecret, host string) http.Handler {
 		oauthClientID:     oauthClientID,
 		oauthClientSecret: oauthClientSecret,
 		host:              host,
-		progressTmpl:      template.Must(template.New("progresspage").Parse(progressPageHtml)),
+		progressTmpl:      template.Must(template.New("progresspage").Parse(progressPageHTML)),
+		indexTmpl:         template.Must(template.New("index").Parse(indexPageHTML)),
 		installs:          make(map[string]*install),
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/status/", h.status)
 	mux.HandleFunc("/progress", h.progressPage)
-	mux.HandleFunc("/progress-template", h.progressTemplate)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	mux.HandleFunc("/", h.index)
 	return mux
@@ -70,6 +88,7 @@ type handler struct {
 	oauthClientSecret string
 	host              string
 	progressTmpl      *template.Template
+	indexTmpl         *template.Template
 
 	installMu sync.Mutex
 	installs  map[string]*install
@@ -100,7 +119,13 @@ func (h *handler) index(rw http.ResponseWriter, req *http.Request) {
 		Path:     "/v1/oauth/authorize",
 		RawQuery: vals.Encode(),
 	}
-	http.Redirect(rw, req, u.String(), http.StatusSeeOther)
+
+	tmplData := struct {
+		InstallLink string
+	}{
+		InstallLink: u.String(),
+	}
+	h.indexTmpl.Execute(rw, tmplData)
 }
 
 func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
@@ -186,18 +211,6 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 		InstallID: state,
 	}
 	err = h.progressTmpl.Execute(rw, tmplData)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "executing template: %s", err.Error())
-	}
-}
-
-func (h *handler) progressTemplate(rw http.ResponseWriter, req *http.Request) {
-	tmplData := struct {
-		InstallID string
-	}{
-		InstallID: "0cd3c92277bf608247659f9b2516f1f3",
-	}
-	err := h.progressTmpl.Execute(rw, tmplData)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "executing template: %s", err.Error())
 	}

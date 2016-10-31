@@ -29,6 +29,12 @@ html, body {
 a {
   text-decoration: none;
   font-family: 'NittiGrotesk-Normal';
+  color: rgb(0, 191, 170);
+}
+
+p {
+  font-family: 'NittiGrotesk-Normal';
+  font-size: 1.1em;
 }
 
 #header {
