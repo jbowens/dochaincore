@@ -35,6 +35,7 @@ $(document).ready(function() {
               $('#status-line').text('Install complete');
               updateProgressBar(100);
               $('#client-token').text(resp.client_token);
+              $('#core-url').text('http://'+resp.ip_address+':1999');
               $('#open-dashboard').attr('href', 'http://' + resp.client_token + '@' + resp.ip_address + ':1999/dashboard');
               $('#core-info').css('display', 'block');
           } else {
