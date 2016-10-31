@@ -172,7 +172,7 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 	}()
 
 	// Start deploying and create the droplet.
-	core, err := Deploy(decodedResponse.AccessToken)
+	core, err := Deploy(decodedResponse.AccessToken, DropletName("chain-core-"+state[:6]))
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
