@@ -59,7 +59,7 @@ const progressPageHTML = `
 			<div id="core-info">
 				<code id="client-token">
 				</code>
-				<a href="http://:1999/dashboard" class="btn-success" id="open-dashboard">Open dashboard</a>
+				<a href="http://:1999/dashboard" target="_blank" class="btn-success" id="open-dashboard">Open dashboard</a>
 			</div>
 		</div>
 	</body>
