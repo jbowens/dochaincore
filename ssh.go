@@ -24,12 +24,11 @@ func createSSHKeyPair() (*sshKeyPair, error) {
 	}
 
 	// generate and write private key as PEM
-	privateKeyPEM := &pem.Block{
+	var pembuf bytes.Buffer
+	err = pem.Encode(&pembuf, &pem.Block{
 		Type:  "RSA PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
-	}
-	var pembuf bytes.Buffer
-	err = pem.Encode(&pembuf, privateKeyPEM)
+	})
 	if err != nil {
 		return nil, err
 	}
