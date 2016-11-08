@@ -3,6 +3,12 @@
 
 [Chain Core Developer Edition](https://chain.com) one-click deploy to a [DigitalOcean](https://digitalocean.com) droplet.
 
+## Web installer
+
+dochaincore implements a [one-click web installer](https://dochaincore.jbowens.org) for Chain Core on DigitalOcean. It automatically creates a new droplet and block storage volume.
+
+![Chain Core Installer](https://raw.githubusercontent.com/jbowens/dochaincore/master/Screen%20Shot%202016-11-08%20at%2012.06.25%20PM.png)
+
 ## Command line
 
 dochaincore exposes a simple command-line utility for deploying Chain Core.
