@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'Nitti-Normal';
-  src: url('/static/fonts/Nitti-Normal.eot?#iefix') format('embedded-opentype'),  url('/static/Nitti-Normal.otf')  format('opentype'),
-  url('/static/fonts/Nitti-Normal.woff') format('woff'), url('/static/fonts/Nitti-Normal.ttf')  format('truetype'), url('/static/fonts/Nitti-Normal.svg#Nitti-Normal') format('svg');
+  src: url('/static/fonts/Nitti-Normal.eot?#iefix') format('embedded-opentype'),
+  url('/static/fonts/Nitti-Normal.woff') format('woff'), url('/static/fonts/Nitti-Normal.ttf') format('truetype'), url('/static/fonts/Nitti-Normal.svg#Nitti-Normal') format('svg');
   font-weight: normal;
   font-style: normal;
 }
