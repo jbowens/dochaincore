@@ -37,7 +37,7 @@ const progressPageHTML = `
 	<head>
 		<title>One-Click Chain Core DigitalOcean</title>
 		<link rel="stylesheet" href="/static/style.css">
-		<script src="https://chain.com/docs/js/jquery.min.js"></script>
+		<script src="https://chain.com/docs/1.1/js/jquery.min.js"></script>
 		<script type="text/javascript">
 			window.installID = "{{.InstallID}}";
 		</script>
