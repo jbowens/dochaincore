@@ -24,7 +24,7 @@ const indexPageHTML = `<!DOCTYPE html>
 	<body>
 		<div id="content">
 			<div id="header">
-				<a href="https://chain.com"><img src="https://chain.com/docs/images/chain-brand.png" alt="Chain" class="mainsite" /></a>
+				<a href="https://chain.com"><img src="https://chain.com/docs/1.1/images/chain-brand.png" alt="Chain" class="mainsite" /></a>
 			</div>
 			<p>Install <a href="https://chain.com">Chain Core</a> on a DigitalOcean droplet. This installer creates a new 1gb droplet and a 100gb block storage volume on your DigitalOcean account. It installs Chain Core on the droplet using the attached volume for storage. The approximate cost on DigitalOcean is $20/month.</p>
 			<a href="{{.InstallLink}}" class="btn-success" id="install-btn">Install Chain Core</a>
@@ -46,7 +46,7 @@ const progressPageHTML = `
 	<body>
 		<div id="content">
 			<div id="header">
-				<a href="https://chain.com"><img src="https://chain.com/docs/images/chain-brand.png" alt="Chain" class="mainsite" /></a>
+				<a href="https://chain.com"><img src="https://chain.com/docs/1.1/images/chain-brand.png" alt="Chain" class="mainsite" /></a>
 			</div>
 			<div id="progress-bar">
 				<div id="current-progress"></div>
