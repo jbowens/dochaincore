@@ -1,22 +1,22 @@
 package dochaincore
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"time"
 )
 
-func waitForPort(host string, port int) error {
-	for attempt := uint(0); attempt < 15; attempt++ {
-		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
-		if err != nil {
-			time.Sleep(5 * time.Second)
-			continue
-		} else if err != nil {
-			return err
+func waitForPort(ctx context.Context, host string, port int) (err error) {
+	var conn net.Conn
+	for conn == nil {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(5 * time.Second):
+			conn, err = net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
 		}
-		conn.Close()
-		return nil
 	}
-	return fmt.Errorf("timed out waiting for port %d to open", port)
+	conn.Close()
+	return err
 }

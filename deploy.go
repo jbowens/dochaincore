@@ -2,6 +2,7 @@ package dochaincore
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -161,13 +162,13 @@ func Deploy(accessToken string, opts ...Option) (*Core, error) {
 }
 
 // WaitForSSH waits until port 22 on the provided Chain Core's host is opened.
-func WaitForSSH(c *Core) error {
-	return waitForPort(c.IPv4Address, 22)
+func WaitForSSH(ctx context.Context, c *Core) error {
+	return waitForPort(ctx, c.IPv4Address, 22)
 }
 
 // WaitForHTTP waits until Chain Core begins listening on port 1999.
-func WaitForHTTP(c *Core) error {
-	return waitForPort(c.IPv4Address, 1999)
+func WaitForHTTP(ctx context.Context, c *Core) error {
+	return waitForPort(ctx, c.IPv4Address, 1999)
 }
 
 // CreateClientToken sets up a Chain Core client token for the

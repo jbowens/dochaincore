@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net/http"
@@ -41,15 +42,16 @@ func createDroplet() {
 		fatal(err)
 	}
 
+	ctx := context.Background()
 	fmt.Printf("Created DigitalOcean droplet %d.\n", core.DropletID)
 	fmt.Printf("Waiting for SSH server to start...\n")
-	err = dochaincore.WaitForSSH(core)
+	err = dochaincore.WaitForSSH(ctx, core)
 	if err != nil {
 		fatal(err)
 	}
 
 	fmt.Printf("Waiting for Chain Core to start...\n")
-	err = dochaincore.WaitForHTTP(core)
+	err = dochaincore.WaitForHTTP(ctx, core)
 	if err != nil {
 		fatal(err)
 	}

@@ -2,6 +2,7 @@ package dochaincore
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -270,6 +271,8 @@ func (i *install) init(state string) {
 		}
 	}()
 
+	ctx := context.TODO()
+
 	// Start deploying and create the droplet.
 	core, err = Deploy(i.accessToken, DropletName("chain-core-"+state[:6]))
 	if err != nil {
@@ -282,13 +285,13 @@ func (i *install) init(state string) {
 	i.Status = "waiting for ssh"
 	i.mu.Unlock()
 
-	err = WaitForSSH(core)
+	err = WaitForSSH(ctx, core)
 	if err != nil {
 		return
 	}
 
 	i.setStatus("waiting for http")
-	err = WaitForHTTP(core)
+	err = WaitForHTTP(ctx, core)
 	if err != nil {
 		return
 	}
