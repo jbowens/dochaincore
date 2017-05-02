@@ -54,10 +54,9 @@ func connect(host string, keypair *sshKeyPair) (*ssh.Session, error) {
 	}
 
 	config := &ssh.ClientConfig{
-		User: "root",
-		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(signer),
-		},
+		User:            "root",
+		Auth:            []ssh.AuthMethod{ssh.PublicKeys(signer)},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 	client, err := ssh.Dial("tcp", host+":22", config)
 	if err != nil {
