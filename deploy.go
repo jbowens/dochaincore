@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"strings"
 	"time"
 
@@ -173,6 +174,20 @@ func WaitForSSH(ctx context.Context, c *Core) error {
 // WaitForHTTP waits until Chain Core begins listening on port 1999.
 func WaitForHTTP(ctx context.Context, c *Core) error {
 	return waitForPort(ctx, c.IPv4Address, 1999)
+}
+
+func waitForPort(ctx context.Context, host string, port int) (err error) {
+	var conn net.Conn
+	for conn == nil {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(5 * time.Second):
+			conn, err = net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
+		}
+	}
+	conn.Close()
+	return err
 }
 
 // CreateClientToken sets up a Chain Core client token for the
