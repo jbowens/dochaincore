@@ -57,7 +57,7 @@ type options struct {
 // Deploy builds and deploys an instance of Chain Core on a DigitalOcean
 // droplet. It requires a DigitalOcean access token and optionally takes
 // a variadic number of configuration options.
-func Deploy(accessToken string, opts ...Option) (*Core, error) {
+func Deploy(ctx context.Context, accessToken string, opts ...Option) (*Core, error) {
 	opt := options{
 		dropletName:   "chain-core",
 		dropletRegion: "sfo2",
@@ -73,7 +73,7 @@ func Deploy(accessToken string, opts ...Option) (*Core, error) {
 		return nil, err
 	}
 
-	oauthClient := oauth2.NewClient(oauth2.NoContext, oauth2.StaticTokenSource(
+	oauthClient := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: accessToken},
 	))
 	client := godo.NewClient(oauthClient)
@@ -137,7 +137,11 @@ func Deploy(accessToken string, opts ...Option) (*Core, error) {
 	// quite yet. We have to poll until the droplet is provisioned and
 	// they're populated.
 	for attempt := 1; core.IPv4Address == "" || core.IPv6Address == ""; attempt++ {
-		time.Sleep(time.Duration(attempt) * time.Second) // linear backoff
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(time.Duration(attempt) * time.Second): /// linear backoff
+		}
 
 		droplet, _, err := client.Droplets.Get(core.DropletID)
 		if err != nil {

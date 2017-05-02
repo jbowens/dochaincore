@@ -14,6 +14,7 @@ import (
 	"path"
 	"strings"
 	"sync"
+	"time"
 )
 
 const indexPageHTML = `<!DOCTYPE html>
@@ -262,6 +263,12 @@ func (i *install) setStatus(status string) {
 func (i *install) init(state string) {
 	defer revoke(i.accessToken)
 
+	// Set a 10 minute timeout for the installation. From beginning
+	// to end it should only take a ~2 minutes, but make sure we
+	// cleanup and revoke the access token even if it takes longer.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	defer cancel()
+
 	var core *Core
 	var err error
 
@@ -271,10 +278,8 @@ func (i *install) init(state string) {
 		}
 	}()
 
-	ctx := context.TODO()
-
 	// Start deploying and create the droplet.
-	core, err = Deploy(i.accessToken, DropletName("chain-core-"+state[:6]))
+	core, err = Deploy(ctx, i.accessToken, DropletName("chain-core-"+state[:6]))
 	if err != nil {
 		return
 	}

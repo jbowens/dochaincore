@@ -37,12 +37,12 @@ func main() {
 }
 
 func createDroplet() {
-	core, err := dochaincore.Deploy(os.Getenv("DIGITALOCEAN_ACCESS_TOKEN"))
+	ctx := context.Background()
+	core, err := dochaincore.Deploy(ctx, os.Getenv("DIGITALOCEAN_ACCESS_TOKEN"))
 	if err != nil {
 		fatal(err)
 	}
 
-	ctx := context.Background()
 	fmt.Printf("Created DigitalOcean droplet %d.\n", core.DropletID)
 	fmt.Printf("Waiting for SSH server to start...\n")
 	err = dochaincore.WaitForSSH(ctx, core)
