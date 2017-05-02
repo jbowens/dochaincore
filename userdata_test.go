@@ -3,7 +3,11 @@ package dochaincore
 import "testing"
 
 func TestBuildUserData(t *testing.T) {
-	s, err := buildUserData(&options{})
+	keyPair, err := createSSHKeyPair()
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, err := buildUserData(&options{}, keyPair)
 	if err != nil {
 		t.Fatal(err)
 	}
