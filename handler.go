@@ -124,12 +124,11 @@ func (h *handler) index(rw http.ResponseWriter, req *http.Request) {
 		RawQuery: vals.Encode(),
 	}
 
-	tmplData := struct {
+	h.indexTmpl.Execute(rw, struct {
 		InstallLink string
 	}{
 		InstallLink: u.String(),
-	}
-	h.indexTmpl.Execute(rw, tmplData)
+	})
 }
 
 func (h *handler) grant(rw http.ResponseWriter, req *http.Request) {
@@ -212,13 +211,11 @@ func (h *handler) progressPage(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	go curr.init(id)
-
-	tmplData := struct {
+	err := h.progressTmpl.Execute(rw, struct {
 		InstallID string
 	}{
 		InstallID: id,
-	}
-	err := h.progressTmpl.Execute(rw, tmplData)
+	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "executing template: %s", err.Error())
 	}
@@ -272,7 +269,6 @@ func (i *install) init(state string) {
 
 	var core *Core
 	var err error
-
 	defer func() {
 		if err != nil {
 			i.setStatus(err.Error())
