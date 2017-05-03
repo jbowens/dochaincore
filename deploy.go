@@ -25,27 +25,19 @@ type Core struct {
 type Option func(*options)
 
 func DropletName(name string) Option {
-	return func(opt *options) {
-		opt.dropletName = name
-	}
+	return func(opt *options) { opt.dropletName = name }
 }
 
 func DropletRegion(region string) Option {
-	return func(opt *options) {
-		opt.dropletRegion = region
-	}
+	return func(opt *options) { opt.dropletRegion = region }
 }
 
 func DropletSize(size string) Option {
-	return func(opt *options) {
-		opt.dropletSize = size
-	}
+	return func(opt *options) { opt.dropletSize = size }
 }
 
 func VolumeSizeGB(gb int64) Option {
-	return func(opt *options) {
-		opt.volumeSize = gb
-	}
+	return func(opt *options) { opt.volumeSize = gb }
 }
 
 type options struct {
