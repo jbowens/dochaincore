@@ -57,7 +57,7 @@ func createDroplet() {
 	}
 
 	fmt.Printf("Creating a client token...\n")
-	token, err := dochaincore.CreateClientToken(core)
+	token, err := dochaincore.CreateClientToken(ctx, core)
 	if err != nil {
 		fatal(err)
 	}

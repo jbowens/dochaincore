@@ -2,10 +2,12 @@ package dochaincore
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"time"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -47,7 +49,7 @@ func createSSHKeyPair() (*sshKeyPair, error) {
 	}, nil
 }
 
-func connect(host string, keypair *sshKeyPair) (*ssh.Session, error) {
+func connect(ctx context.Context, host string, keypair *sshKeyPair) (*ssh.Session, error) {
 	signer, err := ssh.NewSignerFromKey(keypair.privateKey)
 	if err != nil {
 		return nil, err
@@ -58,6 +60,11 @@ func connect(host string, keypair *sshKeyPair) (*ssh.Session, error) {
 		Auth:            []ssh.AuthMethod{ssh.PublicKeys(signer)},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
+	// propogate the context's deadline as a timeout on the config
+	if deadline, ok := ctx.Deadline(); ok {
+		config.Timeout = deadline.Sub(time.Now())
+	}
+
 	client, err := ssh.Dial("tcp", host+":22", config)
 	if err != nil {
 		return nil, err

@@ -302,7 +302,7 @@ func (i *install) init(state string) {
 	}
 
 	i.setStatus("creating client token")
-	token, err := CreateClientToken(core)
+	token, err := CreateClientToken(ctx, core)
 	if err != nil {
 		return
 	}

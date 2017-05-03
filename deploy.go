@@ -184,14 +184,14 @@ func waitForPort(ctx context.Context, host string, port int) (err error) {
 
 // CreateClientToken sets up a Chain Core client token for the
 // provided Core.
-func CreateClientToken(c *Core) (string, error) {
+func CreateClientToken(ctx context.Context, c *Core) (string, error) {
 	const createClientToken = `
 	docker exec dochaincore /usr/bin/chain/corectl create-token do client-readwrite
 	`
 	// TODO(jackson): remove the ssh key from authorized_keys before
 	// closing the SSH session.
 
-	session, err := connect(c.IPv4Address, c.ssh)
+	session, err := connect(ctx, c.IPv4Address, c.ssh)
 	if err != nil {
 		return "", err
 	}
