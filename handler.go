@@ -62,6 +62,7 @@ const progressPageHTML = `
 					<div><strong>Token:</strong> <code id="client-token"></code></div>
 				</div>
 				<a href="http://:1999/dashboard" target="_blank" class="btn-success" id="open-dashboard">Open dashboard</a>
+				<p>When destroying the droplet, remember to also destroy its block storage volume.</p>
 			</div>
 		</div>
 	</body>
