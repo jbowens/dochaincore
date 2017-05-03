@@ -1,12 +1,9 @@
 package dochaincore
 
 import (
-	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
 	"time"
 
 	"golang.org/x/crypto/ssh"
@@ -14,23 +11,11 @@ import (
 
 type sshKeyPair struct {
 	privateKey    *rsa.PrivateKey
-	publicKey     ssh.PublicKey
-	privateKeyPEM []byte
 	authorizedKey []byte
 }
 
 func createSSHKeyPair() (*sshKeyPair, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
-	if err != nil {
-		return nil, err
-	}
-
-	// generate and write private key as PEM
-	var pembuf bytes.Buffer
-	err = pem.Encode(&pembuf, &pem.Block{
-		Type:  "RSA PRIVATE KEY",
-		Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
-	})
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +28,6 @@ func createSSHKeyPair() (*sshKeyPair, error) {
 
 	return &sshKeyPair{
 		privateKey:    privateKey,
-		publicKey:     publicKey,
-		privateKeyPEM: pembuf.Bytes(),
 		authorizedKey: authorizedKey,
 	}, nil
 }
