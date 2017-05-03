@@ -1,11 +1,11 @@
 package dochaincore
 
 import (
-	"bufio"
 	"context"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"strings"
 	"time"
@@ -205,18 +205,16 @@ func CreateClientToken(ctx context.Context, c *Core) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	combined := io.MultiReader(rOut, rErr)
 
 	err = session.Start(createClientToken)
-
-	var lines []string
-	scanner := bufio.NewScanner(combined)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+	if err != nil {
+		return "", err
 	}
-	output := strings.Join(lines, "\n")
-	output = strings.TrimSpace(output)
-
+	outputBytes, err := ioutil.ReadAll(io.MultiReader(rOut, rErr))
+	if err != nil {
+		return "", err
+	}
+	output := strings.TrimSpace(string(outputBytes))
 	if !strings.HasPrefix(output, "do:") {
 		return "", errors.New(output)
 	}
