@@ -92,7 +92,7 @@ func Deploy(ctx context.Context, accessToken string, opts ...Option) (*Core, err
 
 	// Build user data to initialize the droplet as a Chain Core
 	// instance.
-	userData, err := buildUserData(&opt, keypair)
+	userData, err := buildUserData(keypair)
 	if err != nil {
 		return nil, err
 	}

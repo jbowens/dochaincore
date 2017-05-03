@@ -28,20 +28,15 @@ type userDataParams struct {
 	SSHAuthorizedKey string
 }
 
-func buildUserData(opt *options, keypair *sshKeyPair) (string, error) {
+func buildUserData(keypair *sshKeyPair) (string, error) {
 	t, err := template.New("userdata").Parse(baseUserData)
 	if err != nil {
 		return "", err
 	}
 
-	params := userDataParams{
-		SSHAuthorizedKey: string(keypair.authorizedKey),
-	}
-
 	var buf bytes.Buffer
-	err = t.Execute(&buf, params)
-	if err != nil {
-		return "", err
-	}
-	return string(buf.Bytes()), nil
+	err = t.Execute(&buf, userDataParams{
+		SSHAuthorizedKey: string(keypair.authorizedKey),
+	})
+	return string(buf.Bytes()), err
 }

@@ -7,7 +7,7 @@ func TestBuildUserData(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s, err := buildUserData(&options{}, keyPair)
+	s, err := buildUserData(keyPair)
 	if err != nil {
 		t.Fatal(err)
 	}
