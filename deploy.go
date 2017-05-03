@@ -195,6 +195,7 @@ func CreateClientToken(ctx context.Context, c *Core) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer session.Close()
 
 	rOut, err := session.StdoutPipe()
 	if err != nil {
@@ -213,8 +214,6 @@ func CreateClientToken(ctx context.Context, c *Core) (string, error) {
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
-	session.Close()
-
 	output := strings.Join(lines, "\n")
 	output = strings.TrimSpace(output)
 
