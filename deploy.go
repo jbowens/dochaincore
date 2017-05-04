@@ -99,11 +99,12 @@ func Deploy(ctx context.Context, accessToken string, opts ...Option) (*Core, err
 
 	// Launch the DigitalOcean droplet.
 	createRequest := &godo.DropletCreateRequest{
-		Name:     opt.dropletName,
-		Region:   opt.dropletRegion,
-		Size:     opt.dropletSize,
-		IPv6:     true,
-		UserData: userData,
+		Name:       opt.dropletName,
+		Region:     opt.dropletRegion,
+		Size:       opt.dropletSize,
+		IPv6:       true,
+		Monitoring: true,
+		UserData:   userData,
 		Image: godo.DropletCreateImage{
 			Slug: "ubuntu-17-04-x64",
 		},
