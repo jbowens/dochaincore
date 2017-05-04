@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	listEmptyJson string = `
+	listEmptyJSON = `
 	{
 		"tags": [
 		],
@@ -19,7 +19,7 @@ var (
 	}
 	`
 
-	listJson string = `
+	listJSON = `
 	{
 		"tags": [
 		{
@@ -42,7 +42,7 @@ var (
 		}
 		],
 		"links": {
- 			"pages":{
+			"pages":{
 				"next":"http://example.com/v2/tags/?page=3",
 				"prev":"http://example.com/v2/tags/?page=1",
 				"last":"http://example.com/v2/tags/?page=3",
@@ -55,7 +55,7 @@ var (
 	}
 	`
 
-	createJson string = `
+	createJSON = `
 	{
 		"tag": {
 			"name": "testing-1",
@@ -69,7 +69,7 @@ var (
 	}
 	`
 
-	getJson string = `
+	getJSON = `
 	{
 		"tag": {
 			"name": "testing-1",
@@ -160,7 +160,7 @@ var (
 				}
 			}
 		}
-	}	
+	}
 	`
 )
 
@@ -170,10 +170,10 @@ func TestTags_List(t *testing.T) {
 
 	mux.HandleFunc("/v2/tags", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, listJson)
+		fmt.Fprint(w, listJSON)
 	})
 
-	tags, _, err := client.Tags.List(nil)
+	tags, _, err := client.Tags.List(ctx, nil)
 	if err != nil {
 		t.Errorf("Tags.List returned error: %v", err)
 	}
@@ -191,10 +191,10 @@ func TestTags_ListEmpty(t *testing.T) {
 
 	mux.HandleFunc("/v2/tags", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, listEmptyJson)
+		fmt.Fprint(w, listEmptyJSON)
 	})
 
-	tags, _, err := client.Tags.List(nil)
+	tags, _, err := client.Tags.List(ctx, nil)
 	if err != nil {
 		t.Errorf("Tags.List returned error: %v", err)
 	}
@@ -211,10 +211,10 @@ func TestTags_ListPaging(t *testing.T) {
 
 	mux.HandleFunc("/v2/tags", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, listJson)
+		fmt.Fprint(w, listJSON)
 	})
 
-	_, resp, err := client.Tags.List(nil)
+	_, resp, err := client.Tags.List(ctx, nil)
 	if err != nil {
 		t.Errorf("Tags.List returned error: %v", err)
 	}
@@ -227,10 +227,10 @@ func TestTags_Get(t *testing.T) {
 
 	mux.HandleFunc("/v2/tags/testing-1", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		fmt.Fprint(w, getJson)
+		fmt.Fprint(w, getJSON)
 	})
 
-	tag, _, err := client.Tags.Get("testing-1")
+	tag, _, err := client.Tags.Get(ctx, "testing-1")
 	if err != nil {
 		t.Errorf("Tags.Get returned error: %v", err)
 	}
@@ -268,10 +268,10 @@ func TestTags_Create(t *testing.T) {
 			t.Errorf("Request body = %+v, expected %+v", v, createRequest)
 		}
 
-		fmt.Fprintf(w, createJson)
+		fmt.Fprintf(w, createJSON)
 	})
 
-	tag, _, err := client.Tags.Create(createRequest)
+	tag, _, err := client.Tags.Create(ctx, createRequest)
 	if err != nil {
 		t.Errorf("Tags.Create returned error: %v", err)
 	}
@@ -279,35 +279,6 @@ func TestTags_Create(t *testing.T) {
 	expected := &Tag{Name: "testing-1", Resources: &TaggedResources{Droplets: &TaggedDropletsResources{Count: 0, LastTagged: nil}}}
 	if !reflect.DeepEqual(tag, expected) {
 		t.Errorf("Tags.Create returned %+v, expected %+v", tag, expected)
-	}
-}
-
-func TestTags_Update(t *testing.T) {
-	setup()
-	defer teardown()
-
-	updateRequest := &TagUpdateRequest{
-		Name: "testing-1",
-	}
-
-	mux.HandleFunc("/v2/tags/old-testing-1", func(w http.ResponseWriter, r *http.Request) {
-		v := new(TagUpdateRequest)
-
-		err := json.NewDecoder(r.Body).Decode(v)
-		if err != nil {
-			t.Fatalf("decode json: %v", err)
-		}
-
-		testMethod(t, r, "PUT")
-		if !reflect.DeepEqual(v, updateRequest) {
-			t.Errorf("Request body = %+v, expected %+v", v, updateRequest)
-		}
-
-	})
-
-	_, err := client.Tags.Update("old-testing-1", updateRequest)
-	if err != nil {
-		t.Errorf("Tags.Update returned error: %v", err)
 	}
 }
 
@@ -319,7 +290,7 @@ func TestTags_Delete(t *testing.T) {
 		testMethod(t, r, "DELETE")
 	})
 
-	_, err := client.Tags.Delete("testing-1")
+	_, err := client.Tags.Delete(ctx, "testing-1")
 	if err != nil {
 		t.Errorf("Tags.Delete returned error: %v", err)
 	}
@@ -348,7 +319,7 @@ func TestTags_TagResource(t *testing.T) {
 
 	})
 
-	_, err := client.Tags.TagResources("testing-1", tagResourcesRequest)
+	_, err := client.Tags.TagResources(ctx, "testing-1", tagResourcesRequest)
 	if err != nil {
 		t.Errorf("Tags.TagResources returned error: %v", err)
 	}
@@ -377,7 +348,7 @@ func TestTags_UntagResource(t *testing.T) {
 
 	})
 
-	_, err := client.Tags.UntagResources("testing-1", untagResourcesRequest)
+	_, err := client.Tags.UntagResources(ctx, "testing-1", untagResourcesRequest)
 	if err != nil {
 		t.Errorf("Tags.UntagResources returned error: %v", err)
 	}

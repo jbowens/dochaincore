@@ -73,7 +73,7 @@ func Deploy(ctx context.Context, accessToken string, opts ...Option) (*Core, err
 
 	// Blockchains require storage. Make a volume that we can attach
 	// to the droplet. Chain Core will store blockchain data on the volume.
-	volume, _, err := client.Storage.CreateVolume(&godo.VolumeCreateRequest{
+	volume, _, err := client.Storage.CreateVolume(ctx, &godo.VolumeCreateRequest{
 		Region:        opt.dropletRegion,
 		Name:          fmt.Sprintf("%s-storage", opt.dropletName),
 		Description:   "Chain Core storage volume",
@@ -85,7 +85,7 @@ func Deploy(ctx context.Context, accessToken string, opts ...Option) (*Core, err
 
 	// Query all the SSH keys on the account so we can include them
 	// in the droplet.
-	sshKeys, _, err := client.Keys.List(nil)
+	sshKeys, _, err := client.Keys.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func Deploy(ctx context.Context, accessToken string, opts ...Option) (*Core, err
 		createRequest.SSHKeys = append(createRequest.SSHKeys, keyToAdd)
 	}
 
-	droplet, _, err := client.Droplets.Create(createRequest)
+	droplet, _, err := client.Droplets.Create(ctx, createRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func Deploy(ctx context.Context, accessToken string, opts ...Option) (*Core, err
 		case <-time.After(time.Duration(attempt) * time.Second): /// linear backoff
 		}
 
-		droplet, _, err := client.Droplets.Get(core.DropletID)
+		droplet, _, err := client.Droplets.Get(ctx, core.DropletID)
 		if err != nil {
 			return nil, err
 		}

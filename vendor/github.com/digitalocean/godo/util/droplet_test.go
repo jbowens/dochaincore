@@ -4,6 +4,7 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/digitalocean/godo"
+	"github.com/digitalocean/godo/context"
 )
 
 func ExampleWaitForActive() {
@@ -19,7 +20,7 @@ func ExampleWaitForActive() {
 	uri := "https://api.digitalocean.com/v2/actions/xxxxxxxx"
 
 	// block until until the action is complete
-	err := WaitForActive(client, uri)
+	err := WaitForActive(context.TODO(), client, uri)
 	if err != nil {
 		panic(err)
 	}
