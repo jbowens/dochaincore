@@ -105,7 +105,7 @@ func Deploy(ctx context.Context, accessToken string, opts ...Option) (*Core, err
 		IPv6:     true,
 		UserData: userData,
 		Image: godo.DropletCreateImage{
-			Slug: "ubuntu-16-04-x64", // TODO(jackson): upgrade to 17
+			Slug: "ubuntu-17-04-x64",
 		},
 		Volumes: []godo.DropletCreateVolume{
 			{ID: volume.ID},
